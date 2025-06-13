@@ -8,8 +8,8 @@ import { RegisterDto } from './dto/register.dto';
 import {
   ClientProxy,
   ClientProxyFactory,
-  Transport,
 } from '@nestjs/microservices';
+import { getRmqConfig } from '../../../libs/rabbitmq/rmq.config';
 import * as bcryptjs from 'bcryptjs';
 import { firstValueFrom } from 'rxjs';
 
@@ -18,16 +18,7 @@ export class AuthService implements OnModuleInit {
   private client: ClientProxy;
 
   async onModuleInit() {
-    this.client = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: ['amqp://localhost:5672'],
-        queue: 'user_created',
-        queueOptions: {
-          durable: false,
-        },
-      },
-    });
+    this.client = ClientProxyFactory.create(getRmqConfig('user_created'));
 
     await this.client.connect();
   }
